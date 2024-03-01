@@ -2,7 +2,7 @@ version: '3.0'
 
 services:
   main:
-    container_name: main
+    container_name: chatmain
     build:
       context: .
     env_file:
