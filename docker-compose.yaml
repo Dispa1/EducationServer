@@ -12,7 +12,6 @@ services:
       - /app/node_modules
     ports:
       - 8888:8888
-      - 9229:9229
     command: npm run dev
     depends_on:
       - postgres
