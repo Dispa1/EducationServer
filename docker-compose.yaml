@@ -15,11 +15,11 @@ services:
       - 9229:9229
     command: npm run dev
     depends_on:
-      - postgres
+      - altynmessanger
     restart: always
 
   postgres:
-    container_name: postgres
+    container_name: altynmessanger
     image: postgres:15
 #    image: postgres:15-alpine
     env_file:
