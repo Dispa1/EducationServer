@@ -8,7 +8,7 @@ RUN npm install --legacy-peer-deps
 
 COPY . .
 
-RUN chmod +x /path/to/rimraf
+RUN chmod +x /app/node_modules/rimraf
 
 RUN chmod +x /app/node_modules/.bin/tsc
 

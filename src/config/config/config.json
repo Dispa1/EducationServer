@@ -1,0 +1,23 @@
+{
+  "development": {
+    "username": "postgres",
+    "password": "root",
+    "database": "AltinChat",
+    "host": "altynmessangerpostgres",
+    "dialect": "postgres"
+  },
+  "test": {
+    "username": "postgres",
+    "password": "root",
+    "database": "AltinChat",
+    "host": "altynmessangerpostgres",
+    "dialect": "postgres"
+  },
+  "production": {
+    "username": "postgres",
+    "password": "root",
+    "database": "AltinChat",
+    "host": "altynmessangerpostgres",
+    "dialect": "postgres"
+  }
+}
