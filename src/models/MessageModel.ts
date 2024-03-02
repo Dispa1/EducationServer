@@ -8,6 +8,7 @@ export class Message extends Model {
   public chatName?: string;
   public participantName?: string;
   public userId!: string;
+  public userName?: string;
   public content?: string;
   public image?: string;
   public file?: string;
@@ -45,6 +46,10 @@ Message.init({
   userId: {
     type: DataTypes.STRING,
     allowNull: false,
+  },
+  userName: {
+    type: DataTypes.STRING,
+    allowNull: true,
   },
   content: {
     type: DataTypes.TEXT,

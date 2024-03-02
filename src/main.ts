@@ -52,7 +52,7 @@ io.on('connection', (socket) => {
       console.log(`Ошибка: пользователь ${customSocket.userId} не присоединился к комнате чата, поэтому не может отправить сообщение`);
       return;
     }
-    const { chatId, chatName, participantName, message, userId, messageId, } = data;
+    const { chatId, chatName, participantName, message, userId, userName, messageId, } = data;
     
     io.to(chatId.toString()).emit('message', {
       chatId: chatId,
@@ -60,6 +60,7 @@ io.on('connection', (socket) => {
       participantName: participantName,
       content: message,
       userId: userId,
+      userName: userName,
       messageId,
       createdAt: new Date().toISOString(),
       isRead: false,
@@ -76,13 +77,11 @@ io.on('connection', (socket) => {
     io.to(chatId.toString()).emit('updateLastMessage', lastMessage);
   });
   
-// Добавление обработчика для обновления сообщения
 customSocket.on('updateMessage', (updatedMessage) => {
   const { chatId, message } = updatedMessage;
   io.to(chatId.toString()).emit('messageUpdated', message);
 });
 
-// Добавление обработчика для обновления статуса сообщения
 customSocket.on('updateMessageStatus', (updatedMessageStatus) => {
   const { chatId, messageStatus } = updatedMessageStatus;
   io.to(chatId.toString()).emit('messageStatusUpdated', messageStatus);
