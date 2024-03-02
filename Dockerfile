@@ -8,4 +8,6 @@ RUN npm install --legacy-peer-deps
 
 COPY . .
 
-CMD ["npm", "run", "dev"]
+RUN chmod +x /app/node_modules/.bin/tsc
+
+CMD ["npm", "run", "start"]

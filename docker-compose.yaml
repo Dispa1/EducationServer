@@ -2,7 +2,7 @@ version: '3.0'
 
 services:
   main:
-    container_name: main
+    container_name: chatmain
     build:
       context: .
     env_file:
@@ -12,10 +12,9 @@ services:
       - /app/node_modules
     ports:
       - 8888:8888
-      - 9229:9229
-    command: npm run dev
+    command: npm run start
     depends_on:
-      - altynmessangerpostgres
+      - postgres
     restart: always
 
   postgres:
@@ -27,7 +26,7 @@ services:
     environment:
       PG_DATA: /var/lib/postgresql/data
     ports:
-      - 5432:5432
+      - 5433:5433
     volumes:
       - pgdata:/var/lib/postgresql/data
     restart: always
