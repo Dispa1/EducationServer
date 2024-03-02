@@ -4,8 +4,7 @@ WORKDIR /app
 
 COPY package*.json ./
 
-RUN npm install --legacy-peer-deps \
-    && npm install typescript
+RUN npm install --legacy-peer-deps
 
 COPY . .
 
