@@ -33,6 +33,10 @@ Message.init({
         type: DataTypes.STRING,
         allowNull: false,
     },
+    userName: {
+        type: DataTypes.STRING,
+        allowNull: true,
+    },
     content: {
         type: DataTypes.TEXT,
         allowNull: true,

@@ -40,13 +40,14 @@ io.on('connection', (socket) => {
             console.log(`Ошибка: пользователь ${customSocket.userId} не присоединился к комнате чата, поэтому не может отправить сообщение`);
             return;
         }
-        const { chatId, chatName, participantName, message, userId, messageId, } = data;
+        const { chatId, chatName, participantName, message, userId, userName, messageId, } = data;
         io.to(chatId.toString()).emit('message', {
             chatId: chatId,
             chatName: chatName,
             participantName: participantName,
             content: message,
             userId: userId,
+            userName: userName,
             messageId,
             createdAt: new Date().toISOString(),
             isRead: false,

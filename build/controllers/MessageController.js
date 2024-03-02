@@ -33,6 +33,7 @@ export const createMessage = async (req, res) => {
             chatName,
             participantName,
             userId: decodedToken.uid,
+            userName: decodedToken.sub,
             content,
             image,
             file,
