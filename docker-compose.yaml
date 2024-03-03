@@ -18,7 +18,7 @@ services:
     restart: always
 
   postgres:
-    container_name: chatpostges
+    container_name: chatpostgres
     image: postgres:15
 #    image: postgres:15-alpine
     env_file:
@@ -26,7 +26,7 @@ services:
     environment:
       PG_DATA: /var/lib/postgresql/data
     ports:
-      - 5454:5454
+      - 5433:5433
     volumes:
       - pgdata:/var/lib/postgresql/data
     restart: always
