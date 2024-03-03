@@ -14,7 +14,7 @@ services:
       - 8888:8888
     command: npm run start
     depends_on:
-      - altynmessangerpostgres
+      - postgres
     restart: always
 
   postgres:
