@@ -13,3 +13,4 @@ RUN chmod +x /app/node_modules/.bin/tsc
 RUN chmod +x /app/node_modules/.bin/sequelize-cli
 
 CMD ["npm", "run", "start"]
+

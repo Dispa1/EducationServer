@@ -26,7 +26,7 @@ services:
     environment:
       PG_DATA: /var/lib/postgresql/data
     ports:
-      - 5433:5433
+      - 5454:5454
     volumes:
       - pgdata:/var/lib/postgresql/data
     restart: always
