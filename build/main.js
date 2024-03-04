@@ -1,23 +1,28 @@
-import express from 'express';
-import http from 'http';
-import sequelize from './config/database.js';
-import bodyParser from 'body-parser';
-import cors from 'cors';
-import { Server } from 'socket.io';
-import messageRoute from './routes/MessageRoute.js';
-import chatRoute from './routes/ChatRoute.js';
-const app = express();
-const server = http.createServer(app);
-app.use(cors());
-const io = new Server(server, {
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = __importDefault(require("express"));
+const http_1 = __importDefault(require("http"));
+const database_js_1 = __importDefault(require("./config/database.js"));
+const body_parser_1 = __importDefault(require("body-parser"));
+const cors_1 = __importDefault(require("cors"));
+const socket_io_1 = require("socket.io");
+const MessageRoute_js_1 = __importDefault(require("./routes/MessageRoute.js"));
+const ChatRoute_js_1 = __importDefault(require("./routes/ChatRoute.js"));
+const app = (0, express_1.default)();
+const server = http_1.default.createServer(app);
+app.use((0, cors_1.default)());
+const io = new socket_io_1.Server(server, {
     cors: {
         origin: '*',
         methods: ['GET', 'POST', 'PUT', 'DELETE'],
     },
 });
-app.use(bodyParser.json());
-app.use('/api', messageRoute);
-app.use('/api', chatRoute);
+app.use(body_parser_1.default.json());
+app.use('/api', MessageRoute_js_1.default);
+app.use('/api', ChatRoute_js_1.default);
 io.on('connection', (socket) => {
     const customSocket = socket;
     console.log(`Пользователь в сети: ${customSocket.id}`);
@@ -79,7 +84,7 @@ io.on('connection', (socket) => {
 io.on('disconnect', () => {
     console.log('Клиент отключился от WebSocket');
 });
-sequelize.sync().then(() => {
+database_js_1.default.sync().then(() => {
     server.listen(8888, () => {
         console.log("Сервер стартовал на порту 8888");
     });

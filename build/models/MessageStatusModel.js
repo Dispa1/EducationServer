@@ -1,44 +1,51 @@
-import { Model, DataTypes, Sequelize } from 'sequelize';
-import sequelize from '../config/database.js';
-import { Message } from './MessageModel.js';
-export class UserMessageStatus extends Model {
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.UserMessageStatus = void 0;
+const sequelize_1 = require("sequelize");
+const database_js_1 = __importDefault(require("../config/database.js"));
+const MessageModel_js_1 = require("./MessageModel.js");
+class UserMessageStatus extends sequelize_1.Model {
 }
+exports.UserMessageStatus = UserMessageStatus;
 UserMessageStatus.init({
     id: {
-        type: DataTypes.INTEGER,
+        type: sequelize_1.DataTypes.INTEGER,
         autoIncrement: true,
         primaryKey: true,
     },
     userId: {
-        type: DataTypes.STRING,
+        type: sequelize_1.DataTypes.STRING,
         allowNull: false,
     },
     messageId: {
-        type: DataTypes.INTEGER,
+        type: sequelize_1.DataTypes.INTEGER,
         references: {
-            model: Message,
+            model: MessageModel_js_1.Message,
             key: 'id',
         },
         allowNull: false,
     },
     isRead: {
-        type: DataTypes.BOOLEAN,
+        type: sequelize_1.DataTypes.BOOLEAN,
         allowNull: false,
         defaultValue: false,
     },
     createdAt: {
-        type: DataTypes.DATE,
+        type: sequelize_1.DataTypes.DATE,
         allowNull: false,
-        defaultValue: Sequelize.literal('CURRENT_TIMESTAMP'),
+        defaultValue: sequelize_1.Sequelize.literal('CURRENT_TIMESTAMP'),
     },
     updatedAt: {
-        type: DataTypes.DATE,
+        type: sequelize_1.DataTypes.DATE,
         allowNull: false,
-        defaultValue: Sequelize.literal('CURRENT_TIMESTAMP'),
+        defaultValue: sequelize_1.Sequelize.literal('CURRENT_TIMESTAMP'),
     },
 }, {
-    sequelize,
+    sequelize: database_js_1.default,
     modelName: 'UserMessageStatus',
 });
-export default UserMessageStatus;
+exports.default = UserMessageStatus;
 //# sourceMappingURL=MessageStatusModel.js.map

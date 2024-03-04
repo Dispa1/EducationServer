@@ -1,50 +1,57 @@
-import { Model, DataTypes, Sequelize } from 'sequelize';
-import sequelize from '../config/database.js';
-export class Chat extends Model {
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.Chat = void 0;
+const sequelize_1 = require("sequelize");
+const database_js_1 = __importDefault(require("../config/database.js"));
+class Chat extends sequelize_1.Model {
     getUserInfoById(id) {
         const user = this.users.find(user => user.id === id);
         return user ? { username: user.username, fullname: user.fullname } : undefined;
     }
 }
+exports.Chat = Chat;
 Chat.init({
     id: {
-        type: DataTypes.INTEGER,
+        type: sequelize_1.DataTypes.INTEGER,
         autoIncrement: true,
         primaryKey: true,
     },
     name: {
-        type: DataTypes.STRING,
+        type: sequelize_1.DataTypes.STRING,
         allowNull: true,
         unique: true,
     },
     isGroupChat: {
-        type: DataTypes.BOOLEAN,
+        type: sequelize_1.DataTypes.BOOLEAN,
         allowNull: false,
         defaultValue: false,
     },
     users: {
-        type: DataTypes.JSONB,
+        type: sequelize_1.DataTypes.JSONB,
         allowNull: false,
         defaultValue: [],
     },
     creatorId: {
-        type: DataTypes.JSONB,
+        type: sequelize_1.DataTypes.JSONB,
         allowNull: false,
         defaultValue: [],
     },
     createdAt: {
-        type: DataTypes.DATE,
+        type: sequelize_1.DataTypes.DATE,
         allowNull: false,
-        defaultValue: Sequelize.literal('CURRENT_TIMESTAMP'),
+        defaultValue: sequelize_1.Sequelize.literal('CURRENT_TIMESTAMP'),
     },
     updatedAt: {
-        type: DataTypes.DATE,
+        type: sequelize_1.DataTypes.DATE,
         allowNull: false,
-        defaultValue: Sequelize.literal('CURRENT_TIMESTAMP'),
+        defaultValue: sequelize_1.Sequelize.literal('CURRENT_TIMESTAMP'),
     },
 }, {
-    sequelize,
+    sequelize: database_js_1.default,
     modelName: 'Chat',
 });
-export default Chat;
+exports.default = Chat;
 //# sourceMappingURL=ChatModel.js.map

@@ -1,16 +1,22 @@
-import { config } from 'dotenv';
-import jwt from 'jsonwebtoken';
-import multer from 'multer';
-import path from 'path';
-import { Message } from '../models/MessageModel.js';
-import { Chat } from '../models/ChatModel.js';
-import { UserMessageStatus } from '../models/MessageStatusModel.js';
-import { Op } from 'sequelize';
-import sequelize from '../config/database.js';
-config();
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.countUnreadMessagesInChat = exports.updateMessageStatus = exports.createMessageStatus = exports.getLastMessageInChat = exports.createVoiceMessage = exports.getAllMessagesFromChat = exports.deleteMessage = exports.updateMessage = exports.createMessage = void 0;
+const dotenv_1 = require("dotenv");
+const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
+const multer_1 = __importDefault(require("multer"));
+const path_1 = __importDefault(require("path"));
+const MessageModel_js_1 = require("../models/MessageModel.js");
+const ChatModel_js_1 = require("../models/ChatModel.js");
+const MessageStatusModel_js_1 = require("../models/MessageStatusModel.js");
+const sequelize_1 = require("sequelize");
+const database_js_1 = __importDefault(require("../config/database.js"));
+(0, dotenv_1.config)();
 const getUsersInChat = async (chatId) => {
     try {
-        const chat = await Chat.findByPk(chatId);
+        const chat = await ChatModel_js_1.Chat.findByPk(chatId);
         if (!chat) {
             throw new Error('Chat not found');
         }
@@ -22,13 +28,13 @@ const getUsersInChat = async (chatId) => {
         throw error;
     }
 };
-export const createMessage = async (req, res) => {
+const createMessage = async (req, res) => {
     var _a;
     try {
         const token = (_a = req.headers.authorization) === null || _a === void 0 ? void 0 : _a.split(' ')[1];
-        const decodedToken = jwt.verify(token, process.env.JWT_SECRET_KEY);
+        const decodedToken = jsonwebtoken_1.default.verify(token, process.env.JWT_SECRET_KEY);
         const { chatId, chatName, participantName, content, image, file } = req.body;
-        const createdMessage = await Message.create({
+        const createdMessage = await MessageModel_js_1.Message.create({
             chatId,
             chatName,
             participantName,
@@ -39,7 +45,7 @@ export const createMessage = async (req, res) => {
             file,
         });
         const messageId = createdMessage.id;
-        await UserMessageStatus.create({
+        await MessageStatusModel_js_1.UserMessageStatus.create({
             userId: decodedToken.uid,
             messageId,
             isRead: true,
@@ -47,7 +53,7 @@ export const createMessage = async (req, res) => {
         const usersInChat = await getUsersInChat(chatId);
         await Promise.all(usersInChat.map(async (user) => {
             if (user.id !== decodedToken.uid) {
-                await UserMessageStatus.create({
+                await MessageStatusModel_js_1.UserMessageStatus.create({
                     chatId,
                     userId: user.id,
                     messageId,
@@ -62,14 +68,15 @@ export const createMessage = async (req, res) => {
         return res.status(500).json({ error: 'Internal Server Error' });
     }
 };
-export const updateMessage = async (req, res) => {
+exports.createMessage = createMessage;
+const updateMessage = async (req, res) => {
     var _a;
     try {
         const token = (_a = req.headers.authorization) === null || _a === void 0 ? void 0 : _a.split(' ')[1];
-        const decodedToken = jwt.verify(token, process.env.JWT_SECRET_KEY);
+        const decodedToken = jsonwebtoken_1.default.verify(token, process.env.JWT_SECRET_KEY);
         const messageId = req.params.messageId;
         const { content } = req.body;
-        const messageToUpdate = await Message.findByPk(messageId);
+        const messageToUpdate = await MessageModel_js_1.Message.findByPk(messageId);
         if (!messageToUpdate) {
             return res.status(404).json({ error: 'Message not found' });
         }
@@ -87,13 +94,14 @@ export const updateMessage = async (req, res) => {
         return res.status(500).json({ error: 'Internal Server Error' });
     }
 };
-export const deleteMessage = async (req, res) => {
+exports.updateMessage = updateMessage;
+const deleteMessage = async (req, res) => {
     var _a;
     try {
         const token = (_a = req.headers.authorization) === null || _a === void 0 ? void 0 : _a.split(' ')[1];
-        const decodedToken = jwt.verify(token, process.env.JWT_SECRET_KEY);
+        const decodedToken = jsonwebtoken_1.default.verify(token, process.env.JWT_SECRET_KEY);
         const messageId = req.params.messageId;
-        const messageToDelete = await Message.findByPk(messageId);
+        const messageToDelete = await MessageModel_js_1.Message.findByPk(messageId);
         if (!messageToDelete) {
             return res.status(404).json({ error: 'Message not found or you do not have permission to delete it' });
         }
@@ -108,20 +116,21 @@ export const deleteMessage = async (req, res) => {
         return res.status(500).json({ error: 'Internal Server Error' });
     }
 };
-export const getAllMessagesFromChat = async (req, res) => {
+exports.deleteMessage = deleteMessage;
+const getAllMessagesFromChat = async (req, res) => {
     var _a;
     try {
         const token = (_a = req.headers.authorization) === null || _a === void 0 ? void 0 : _a.split(' ')[1];
-        jwt.verify(token, process.env.JWT_SECRET_KEY);
+        jsonwebtoken_1.default.verify(token, process.env.JWT_SECRET_KEY);
         const chatId = req.params.chatId;
         const { page, pageSize } = req.query;
         const offset = (parseInt(page) - 1) * parseInt(pageSize);
         const limit = parseInt(pageSize);
-        const chat = await Chat.findByPk(chatId);
+        const chat = await ChatModel_js_1.Chat.findByPk(chatId);
         if (!chat) {
             return res.status(404).json({ error: 'Chat not found' });
         }
-        const messages = await Message.findAll({
+        const messages = await MessageModel_js_1.Message.findAll({
             where: { chatId },
             order: [['createdAt', 'DESC']],
             offset,
@@ -129,7 +138,7 @@ export const getAllMessagesFromChat = async (req, res) => {
         });
         const messageStatuses = await Promise.all(messages.map(async (message) => {
             const isMessageReadByAll = await Promise.all(chat.users.map(async (user) => {
-                const status = await UserMessageStatus.findOne({ where: { userId: user.id, messageId: message.id } });
+                const status = await MessageStatusModel_js_1.UserMessageStatus.findOne({ where: { userId: user.id, messageId: message.id } });
                 return status ? status.isRead : false;
             }));
             const isMessageRead = isMessageReadByAll.every((isRead) => isRead);
@@ -142,19 +151,20 @@ export const getAllMessagesFromChat = async (req, res) => {
         return res.status(500).json({ error: 'Internal Server Error' });
     }
 };
-const storage = multer.diskStorage({
+exports.getAllMessagesFromChat = getAllMessagesFromChat;
+const storage = multer_1.default.diskStorage({
     destination: '../utils/voiceMessage',
     filename: (req, file, cb) => {
         const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
-        cb(null, file.fieldname + '-' + uniqueSuffix + path.extname(file.originalname));
+        cb(null, file.fieldname + '-' + uniqueSuffix + path_1.default.extname(file.originalname));
     },
 });
-const upload = multer({ storage });
-export const createVoiceMessage = async (req, res) => {
+const upload = (0, multer_1.default)({ storage });
+const createVoiceMessage = async (req, res) => {
     var _a;
     try {
         const token = (_a = req.headers.authorization) === null || _a === void 0 ? void 0 : _a.split(' ')[1];
-        const decodedToken = jwt.verify(token, process.env.JWT_SECRET_KEY);
+        const decodedToken = jsonwebtoken_1.default.verify(token, process.env.JWT_SECRET_KEY);
         const { chatId } = req.body;
         upload.single('voiceMessage')(req, res, async (err) => {
             var _a;
@@ -163,7 +173,7 @@ export const createVoiceMessage = async (req, res) => {
                 return res.status(500).json({ error: 'Internal Server Error' });
             }
             const voiceMessagePath = (_a = req.file) === null || _a === void 0 ? void 0 : _a.path;
-            const newMessage = await Message.create({
+            const newMessage = await MessageModel_js_1.Message.create({
                 chatId,
                 userId: decodedToken.userId,
                 voiceMessage: voiceMessagePath,
@@ -176,13 +186,14 @@ export const createVoiceMessage = async (req, res) => {
         return res.status(500).json({ error: 'Internal Server Error' });
     }
 };
-export const getLastMessageInChat = async (req, res) => {
+exports.createVoiceMessage = createVoiceMessage;
+const getLastMessageInChat = async (req, res) => {
     var _a;
     try {
         const token = (_a = req.headers.authorization) === null || _a === void 0 ? void 0 : _a.split(' ')[1];
-        jwt.verify(token, process.env.JWT_SECRET_KEY);
+        jsonwebtoken_1.default.verify(token, process.env.JWT_SECRET_KEY);
         const chatId = req.params.chatId;
-        const lastMessage = await Message.findOne({
+        const lastMessage = await MessageModel_js_1.Message.findOne({
             where: { chatId },
             order: [['createdAt', 'DESC']],
         });
@@ -196,16 +207,17 @@ export const getLastMessageInChat = async (req, res) => {
         return res.status(500).json({ error: 'Internal Server Error' });
     }
 };
-export const createMessageStatus = async (req, res) => {
+exports.getLastMessageInChat = getLastMessageInChat;
+const createMessageStatus = async (req, res) => {
     var _a;
     try {
         const token = (_a = req.headers.authorization) === null || _a === void 0 ? void 0 : _a.split(' ')[1];
-        const decodedToken = jwt.verify(token, process.env.JWT_SECRET_KEY);
+        const decodedToken = jsonwebtoken_1.default.verify(token, process.env.JWT_SECRET_KEY);
         const { messageId } = req.body;
         if (!messageId) {
             return res.status(400).json({ error: 'MessageId is required' });
         }
-        const messageStatus = await UserMessageStatus.create({
+        const messageStatus = await MessageStatusModel_js_1.UserMessageStatus.create({
             userId: decodedToken.uid,
             messageId,
             isRead: true,
@@ -217,17 +229,18 @@ export const createMessageStatus = async (req, res) => {
         return res.status(500).json({ error: 'Internal server error' });
     }
 };
-export const updateMessageStatus = async (req, res) => {
+exports.createMessageStatus = createMessageStatus;
+const updateMessageStatus = async (req, res) => {
     var _a;
     try {
         const token = (_a = req.headers.authorization) === null || _a === void 0 ? void 0 : _a.split(' ')[1];
-        const decodedToken = jwt.verify(token, process.env.JWT_SECRET_KEY);
+        const decodedToken = jsonwebtoken_1.default.verify(token, process.env.JWT_SECRET_KEY);
         const { messageId } = req.params;
-        const message = await Message.findOne({ where: { id: messageId } });
+        const message = await MessageModel_js_1.Message.findOne({ where: { id: messageId } });
         if (!message) {
             return res.status(404).json({ error: 'Message not found' });
         }
-        const updatedStatus = await UserMessageStatus.update({ isRead: true }, { where: { userId: decodedToken.uid, messageId } });
+        const updatedStatus = await MessageStatusModel_js_1.UserMessageStatus.update({ isRead: true }, { where: { userId: decodedToken.uid, messageId } });
         if (updatedStatus) {
             return res.status(200).json({ message: 'Message status updated successfully', data: updatedStatus });
         }
@@ -240,18 +253,19 @@ export const updateMessageStatus = async (req, res) => {
         return res.status(500).json({ error: 'Internal Server Error' });
     }
 };
-export const countUnreadMessagesInChat = async (req, res) => {
+exports.updateMessageStatus = updateMessageStatus;
+const countUnreadMessagesInChat = async (req, res) => {
     var _a;
     try {
         const token = (_a = req.headers.authorization) === null || _a === void 0 ? void 0 : _a.split(' ')[1];
-        const decodedToken = jwt.verify(token, process.env.JWT_SECRET_KEY);
+        const decodedToken = jsonwebtoken_1.default.verify(token, process.env.JWT_SECRET_KEY);
         const chatId = req.params.chatId;
-        const unreadMessagesCount = await UserMessageStatus.count({
+        const unreadMessagesCount = await MessageStatusModel_js_1.UserMessageStatus.count({
             where: {
                 userId: decodedToken.uid,
                 isRead: false,
                 messageId: {
-                    [Op.in]: sequelize.literal(`(SELECT id FROM "Messages" WHERE "chatId" = ${chatId})`)
+                    [sequelize_1.Op.in]: database_js_1.default.literal(`(SELECT id FROM "Messages" WHERE "chatId" = ${chatId})`)
                 }
             }
         });
@@ -262,4 +276,5 @@ export const countUnreadMessagesInChat = async (req, res) => {
         return res.status(500).json({ error: 'Internal Server Error' });
     }
 };
+exports.countUnreadMessagesInChat = countUnreadMessagesInChat;
 //# sourceMappingURL=MessageController.js.map

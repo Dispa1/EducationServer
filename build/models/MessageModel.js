@@ -1,71 +1,78 @@
-import { Model, DataTypes, Sequelize } from 'sequelize';
-import sequelize from '../config/database.js';
-import { Chat } from './ChatModel.js';
-export class Message extends Model {
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.Message = void 0;
+const sequelize_1 = require("sequelize");
+const database_js_1 = __importDefault(require("../config/database.js"));
+const ChatModel_js_1 = require("./ChatModel.js");
+class Message extends sequelize_1.Model {
 }
+exports.Message = Message;
 Message.init({
     id: {
-        type: DataTypes.INTEGER,
+        type: sequelize_1.DataTypes.INTEGER,
         autoIncrement: true,
         primaryKey: true,
     },
     chatId: {
-        type: DataTypes.INTEGER,
+        type: sequelize_1.DataTypes.INTEGER,
         references: {
-            model: Chat,
+            model: ChatModel_js_1.Chat,
             key: 'id',
         },
         allowNull: false,
     },
     chatName: {
-        type: DataTypes.STRING,
+        type: sequelize_1.DataTypes.STRING,
         references: {
-            model: Chat,
+            model: ChatModel_js_1.Chat,
             key: 'name',
         },
         allowNull: true,
     },
     participantName: {
-        type: DataTypes.STRING,
+        type: sequelize_1.DataTypes.STRING,
         allowNull: true,
     },
     userId: {
-        type: DataTypes.STRING,
+        type: sequelize_1.DataTypes.STRING,
         allowNull: false,
     },
     userName: {
-        type: DataTypes.STRING,
+        type: sequelize_1.DataTypes.STRING,
         allowNull: true,
     },
     content: {
-        type: DataTypes.TEXT,
+        type: sequelize_1.DataTypes.TEXT,
         allowNull: true,
     },
     image: {
-        type: DataTypes.STRING,
+        type: sequelize_1.DataTypes.STRING,
         allowNull: true,
     },
     file: {
-        type: DataTypes.STRING,
+        type: sequelize_1.DataTypes.STRING,
         allowNull: true,
     },
     voiceMessage: {
-        type: DataTypes.STRING,
+        type: sequelize_1.DataTypes.STRING,
         allowNull: true,
     },
     createdAt: {
-        type: DataTypes.DATE,
+        type: sequelize_1.DataTypes.DATE,
         allowNull: false,
-        defaultValue: Sequelize.literal('CURRENT_TIMESTAMP'),
+        defaultValue: sequelize_1.Sequelize.literal('CURRENT_TIMESTAMP'),
     },
     updatedAt: {
-        type: DataTypes.DATE,
+        type: sequelize_1.DataTypes.DATE,
         allowNull: false,
-        defaultValue: Sequelize.literal('CURRENT_TIMESTAMP'),
+        defaultValue: sequelize_1.Sequelize.literal('CURRENT_TIMESTAMP'),
     },
 }, {
-    sequelize,
+    sequelize: database_js_1.default,
     modelName: 'Message',
 });
-export default Message;
+exports.default = Message;
 //# sourceMappingURL=MessageModel.js.map

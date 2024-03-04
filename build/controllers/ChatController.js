@@ -1,20 +1,26 @@
-import { config } from 'dotenv';
-import jwt from 'jsonwebtoken';
-import { Chat } from '../models/ChatModel.js';
-import { Op } from 'sequelize';
-config();
-export const createIndividualChat = async (req, res) => {
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.getUserChats = exports.deleteChat = exports.createGroupChat = exports.createIndividualChat = void 0;
+const dotenv_1 = require("dotenv");
+const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
+const ChatModel_js_1 = require("../models/ChatModel.js");
+const sequelize_1 = require("sequelize");
+(0, dotenv_1.config)();
+const createIndividualChat = async (req, res) => {
     var _a;
     try {
         const token = (_a = req.headers.authorization) === null || _a === void 0 ? void 0 : _a.split(' ')[1];
-        const decodedToken = jwt.verify(token, process.env.JWT_SECRET_KEY);
+        const decodedToken = jsonwebtoken_1.default.verify(token, process.env.JWT_SECRET_KEY);
         const { memberId, memberUsername, memberFullname } = req.body;
         const creatorId = decodedToken.uid;
-        const existingChat = await Chat.findOne({
+        const existingChat = await ChatModel_js_1.Chat.findOne({
             where: {
                 isGroupChat: false,
                 users: {
-                    [Op.contains]: [
+                    [sequelize_1.Op.contains]: [
                         { id: creatorId },
                         { id: memberId }
                     ]
@@ -24,7 +30,7 @@ export const createIndividualChat = async (req, res) => {
         if (existingChat) {
             return res.status(200).json(existingChat);
         }
-        const newChat = await Chat.create({
+        const newChat = await ChatModel_js_1.Chat.create({
             isGroupChat: false,
             name: memberUsername,
             users: [
@@ -40,23 +46,24 @@ export const createIndividualChat = async (req, res) => {
         return res.status(500).json({ error: 'Internal Server Error' });
     }
 };
-export const createGroupChat = async (req, res) => {
+exports.createIndividualChat = createIndividualChat;
+const createGroupChat = async (req, res) => {
     var _a;
     try {
         const token = (_a = req.headers.authorization) === null || _a === void 0 ? void 0 : _a.split(' ')[1];
-        const decodedToken = jwt.verify(token, process.env.JWT_SECRET_KEY);
+        const decodedToken = jsonwebtoken_1.default.verify(token, process.env.JWT_SECRET_KEY);
         const { participantUserIds, chatName, participantUsernames, participantFullnames } = req.body;
         if (!participantUserIds || participantUserIds.length < 2) {
             return res.status(400).json({ error: 'Group chat must have at least two participants' });
         }
-        const existingChat = await Chat.findOne({ where: { name: chatName } });
+        const existingChat = await ChatModel_js_1.Chat.findOne({ where: { name: chatName } });
         if (existingChat) {
             return res.status(400).json({ error: 'A chat with this name already exists' });
         }
         const userIds = [...participantUserIds, decodedToken.uid];
         const usernames = [...participantUsernames, decodedToken.sub];
         const fullnames = [...participantFullnames, decodedToken.name];
-        const newChat = await Chat.create({
+        const newChat = await ChatModel_js_1.Chat.create({
             name: chatName,
             isGroupChat: true,
             users: userIds.map((id, index) => ({ id, username: usernames[index], fullname: fullnames[index] })),
@@ -69,13 +76,14 @@ export const createGroupChat = async (req, res) => {
         return res.status(500).json({ error: 'Internal Server Error' });
     }
 };
-export const deleteChat = async (req, res) => {
+exports.createGroupChat = createGroupChat;
+const deleteChat = async (req, res) => {
     var _a;
     try {
         const token = (_a = req.headers.authorization) === null || _a === void 0 ? void 0 : _a.split(' ')[1];
-        const decodedToken = jwt.verify(token, process.env.JWT_SECRET_KEY);
+        const decodedToken = jsonwebtoken_1.default.verify(token, process.env.JWT_SECRET_KEY);
         const chatId = req.params.chatId;
-        const chatToDelete = await Chat.findOne({ where: { id: chatId, creatorId: { [Op.contains]: [{ id: decodedToken.uid }] } } });
+        const chatToDelete = await ChatModel_js_1.Chat.findOne({ where: { id: chatId, creatorId: { [sequelize_1.Op.contains]: [{ id: decodedToken.uid }] } } });
         if (!chatToDelete) {
             return res.status(404).json({ error: 'Chat not found or you do not have permission to delete it' });
         }
@@ -87,16 +95,17 @@ export const deleteChat = async (req, res) => {
         return res.status(500).json({ error: 'Internal Server Error' });
     }
 };
-export const getUserChats = async (req, res) => {
+exports.deleteChat = deleteChat;
+const getUserChats = async (req, res) => {
     var _a;
     try {
         const token = (_a = req.headers.authorization) === null || _a === void 0 ? void 0 : _a.split(' ')[1];
-        const decodedToken = jwt.verify(token, process.env.JWT_SECRET_KEY);
-        const userChats = await Chat.findAll({
+        const decodedToken = jsonwebtoken_1.default.verify(token, process.env.JWT_SECRET_KEY);
+        const userChats = await ChatModel_js_1.Chat.findAll({
             where: {
-                [Op.or]: [
-                    { isGroupChat: true, users: { [Op.contains]: [{ id: decodedToken.uid }] } },
-                    { isGroupChat: false, users: { [Op.contains]: [{ id: decodedToken.uid }] } }
+                [sequelize_1.Op.or]: [
+                    { isGroupChat: true, users: { [sequelize_1.Op.contains]: [{ id: decodedToken.uid }] } },
+                    { isGroupChat: false, users: { [sequelize_1.Op.contains]: [{ id: decodedToken.uid }] } }
                 ]
             }
         });
@@ -107,4 +116,5 @@ export const getUserChats = async (req, res) => {
         return res.status(500).json({ error: 'Internal Server Error' });
     }
 };
+exports.getUserChats = getUserChats;
 //# sourceMappingURL=ChatController.js.map
