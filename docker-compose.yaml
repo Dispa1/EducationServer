@@ -12,6 +12,7 @@ services:
       - /app/node_modules
     ports:
       - 8888:8888
+    network_mode: host
     command: npm run start
     depends_on:
       - postgres
@@ -27,6 +28,7 @@ services:
       PG_DATA: /var/lib/postgresql/data
     ports:
       - 5433:5433
+    network_mode: host
     volumes:
       - pgdata:/var/lib/postgresql/data
     restart: always
