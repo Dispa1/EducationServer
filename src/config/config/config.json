@@ -1,23 +1,23 @@
 {
   "development": {
     "username": "postgres",
-    "password": "root",
-    "database": "AltinChat",
-    "host": "chatpostgres",
+    "password": "master",
+    "database": "Education",
+    "host": "localhost",
     "dialect": "postgres"
   },
   "test": {
     "username": "postgres",
-    "password": "root",
-    "database": "AltinChat",
-    "host": "chatpostgres",
+    "password": "master",
+    "database": "Education",
+    "host": "localhost",
     "dialect": "postgres"
   },
   "production": {
     "username": "postgres",
-    "password": "root",
-    "database": "AltinChat",
-    "host": "chatpostgres",
+    "password": "master",
+    "database": "Education",
+    "host": "localhost",
     "dialect": "postgres"
   }
 }
