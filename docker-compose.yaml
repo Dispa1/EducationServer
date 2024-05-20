@@ -2,7 +2,7 @@ version: '3.0'
 
 services:
   main:
-    container_name: chatmain
+    container_name: EducationMain
     build:
       context: .
     env_file:
@@ -11,14 +11,14 @@ services:
       - .:/app
       - /app/node_modules
     ports:
-      - 8888:8888
-    command: npm run start
+      - 7890:7890
+    command: npm run dev
     depends_on:
       - postgres
     restart: always
 
   postgres:
-    container_name: chatpostgres
+    container_name: Educationpostgres
     image: postgres:15
 #    image: postgres:15-alpine
     env_file:

@@ -77,7 +77,9 @@ export const refreshToken = async (req: Request, res: Response): Promise<void> =
 
 export const getAllUsers = async (req: Request, res: Response) => {
   try {
-    const users = await User.findAll();
+    const users = await User.findAll({
+      order: [['createdAt', 'DESC']],
+    });
     res.status(200).json(users);
   } catch (error) {
     console.error('Ошибка при получении пользователей:', error);
@@ -110,14 +112,15 @@ export const updateUser = async (req: Request, res: Response) => {
   }
 };
 
-export const deleteUser = async (req: Request, res: Response) => {
+export const deleteUser = async (req: Request, res: Response): Promise<void> => {
   try {
-    const { userId } = req.params;
+    const { userID } = req.params;
 
-    const deletedUser = await User.destroy({ where: { id: userId } });
+    const deletedUser = await User.destroy({ where: { id: userID } });
 
     if (!deletedUser) {
-      return res.status(404).json({ message: 'Пользователь не найден' });
+      res.status(404).json({ message: 'Пользователь не найден' });
+      return;
     }
 
     res.status(200).json({ message: 'Пользователь успешно удален' });

@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import News from '../models/News';
+import sequelize from 'sequelize';
 
 export const createNews = async (req: Request, res: Response): Promise<void> => {
   try {
@@ -43,6 +44,18 @@ export const getAllNews = async (req: Request, res: Response): Promise<void> => 
   try {
     const allNews = await News.findAll({
       order: [['createdAt', 'DESC']],
+      attributes: [
+        'id',
+        'name',
+        'image',
+        [sequelize.literal('SUBSTRING(text, 1, 255)'), 'text'],
+        'createdAt',
+        [
+          sequelize.literal(`CONCAT('${process.env.BASE_URL}', image)`),
+          'imageUrl'
+        ]
+      ],
+      raw: true
     });
 
     res.status(200).json(allNews);

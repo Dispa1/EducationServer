@@ -1,21 +1,49 @@
 import { Request, Response } from 'express';
+import fs from 'fs';
+import path from 'path';
+import { promisify } from 'util';
+import { v4 as uuidv4 } from 'uuid';
 import Course from '../models/CourseModel';
+import News from '../models/News';
 import sequelize from 'sequelize';
+import multer from 'multer';
+
+const writeFileAsync = promisify(fs.writeFile);
+
+const storage = multer.memoryStorage();
+const upload = multer({ storage });
 
 export const createCourse = async (req: Request, res: Response): Promise<void> => {
   try {
-    const { title, image, subSections, description } = req.body;
+    const { title, subSections, description } = req.body;
 
-    if (!title || !subSections || !Array.isArray(subSections) || subSections.length === 0) {
+    if (!title || !subSections || !Array.isArray(JSON.parse(subSections))) {
       res.status(400).json({ error: 'Необходимо указать название курса и подразделы' });
       return;
     }
 
+    let imagePath = null;
+    if (req.file) {
+      const imageExtension = path.extname(req.file.originalname);
+      const imageName = `${uuidv4()}${imageExtension}`;
+      const imageDir = path.join(__dirname, '../public/images');
+      imagePath = `/images/${imageName}`;
+
+      await writeFileAsync(path.join(imageDir, imageName), req.file.buffer);
+    }
+
     const course = await Course.create({
       title,
-      image,
-      subSections,
-      description: description || ''
+      image: imagePath,
+      subSections: JSON.parse(subSections),
+      description: description,
+    });
+
+    await News.create({
+      name: title,
+      image: imagePath,
+      text: description || '',
+      type: 'course',
     });
 
     res.status(201).json(course);
@@ -55,12 +83,18 @@ export const getAllCourses = async (req: Request, res: Response): Promise<void> 
       order: [['createdAt', 'DESC']],
       attributes: [
         'id',
-        'title', 
-        'image', 
+        'title',
+        'image',
         [sequelize.literal('SUBSTRING(description, 1, 255)'), 'description'],
-        'createdAt'
-      ]
+        'createdAt',
+        [
+          sequelize.literal(`CONCAT('${process.env.BASE_URL}', image)`),
+          'imageUrl'
+        ]
+      ],
+      raw: true
     });
+
     res.status(200).json(courses);
   } catch (error) {
     console.error('Ошибка при получении всех курсов:', error);
@@ -96,7 +130,18 @@ export const getCourseById = async (req: Request, res: Response): Promise<void> 
       return;
     }
 
-    res.status(200).json(course);
+    const imageUrl = course.image ? `${process.env.BASE_URL}${course.image}` : null;
+
+    const courseData = {
+      id: course.id,
+      title: course.title,
+      description: course.description,
+      image: course.image,
+      subSections: course.subSections,
+      imageUrl: imageUrl,
+    };
+
+    res.status(200).json(courseData);
   } catch (error) {
     console.error('Ошибка при получении курса по id:', error);
     res.status(500).json({ error: 'Произошла ошибка при получении курса по id' });

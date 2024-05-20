@@ -1,4 +1,4 @@
-import jwt from 'jsonwebtoken';
+import jwt, { TokenExpiredError } from 'jsonwebtoken';
 import { Request, Response, NextFunction } from 'express';
 
 declare global {
@@ -9,7 +9,6 @@ declare global {
   }
 }
 
-
 const authenticateToken = (req: Request, res: Response, next: NextFunction) => {
   const authHeader = req.headers['authorization'];
   const accessToken = authHeader && authHeader.split(' ')[1];
@@ -18,10 +17,15 @@ const authenticateToken = (req: Request, res: Response, next: NextFunction) => {
     return res.status(401).json({ message: 'Токен доступа не предоставлен' });
   }
 
-  jwt.verify(accessToken, `${process.env.SECRET}`, (err, user) => {
+  jwt.verify(accessToken, process.env.SECRET as string, (err: jwt.VerifyErrors | null, user: any) => {
     if (err) {
-      return res.status(403).json({ message: 'Недействительный токен доступа' });
+      if (err instanceof TokenExpiredError) {
+        return res.status(403).json({ message: 'Срок действия токена истек' });
+      } else {
+        return res.status(403).json({ message: 'Недействительный токен доступа' });
+      }
     }
+
     req.user = user;
     next();
   });

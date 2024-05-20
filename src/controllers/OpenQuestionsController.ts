@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import OpenQuestionsTest from '../models/OpenQuestionsTestModel';
+import News from '../models/News';
 
 export const createOpenQuestionTest = async (req: Request, res: Response): Promise<void> => {
   try {
@@ -15,6 +16,12 @@ export const createOpenQuestionTest = async (req: Request, res: Response): Promi
       description,
       test,
       time,
+    });
+
+    await News.create({
+      name,
+      text: description,
+      type: 'open_question_test'
     });
 
     res.status(201).json(openQuestion);

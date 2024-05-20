@@ -1,16 +1,23 @@
+# Используем Node.js версии 16.20.0
 FROM node:16.20.0-alpine3.18
 
+# Устанавливаем рабочую директорию
 WORKDIR /app
 
+# Копируем package.json и package-lock.json (если есть)
 COPY package*.json ./
 
+# Устанавливаем зависимости
 RUN npm install --legacy-peer-deps
 
+# Копируем исходный код приложения
 COPY . .
 
-RUN chmod +x /app/node_modules/.bin/tsc
+# Устанавливаем nodemon глобально
+RUN npm install -g nodemon
 
-RUN chmod +x /app/node_modules/.bin/sequelize-cli
+# Запускаем TypeScript компиляцию без использования глобальной установки
+RUN ./node_modules/.bin/tsc
 
-CMD ["npm", "run", "start"]
-
+# Команда для запуска приложения с помощью nodemon
+CMD ["nodemon", "build/main.js"]

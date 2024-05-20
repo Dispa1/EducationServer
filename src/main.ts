@@ -11,9 +11,12 @@ import CourseRoute from './routes/CourseRoute';
 import NewsRoute from './routes/NewsRoute';
 import AnaliticsRoute from './routes/AnaliticsRoute';
 import SwaggerRoute from './routes/SwaggerRoute';
+import path from 'path';
 
 const app = express();
 const server = http.createServer(app);
+
+app.use('/images', express.static(path.join(__dirname, 'public/images')));
 
 app.use(cors());
 app.use(bodyParser.json());

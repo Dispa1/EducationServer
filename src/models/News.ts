@@ -25,7 +25,7 @@ News.init({
     type: DataTypes.STRING
   },
   text: {
-    type: DataTypes.STRING,
+    type: DataTypes.TEXT,
     allowNull: false
   },
   type: {

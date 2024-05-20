@@ -1,7 +1,7 @@
 import { Model, DataTypes } from 'sequelize';
 import sequelize from '../config/database';
 
-interface Question {
+export interface Question {
     id: number;
     questionText: string;
     correctAnswer: string;
